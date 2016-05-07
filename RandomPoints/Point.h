@@ -22,6 +22,7 @@ public:
 	Point operator+(const Point& p);
 	friend Point operator*(const double& la, const Point& rp);
 	bool operator<(const Point& p) const;
+	bool operator!=(const Point& p) const;
 
 	friend std::ostream& operator<<(std::ostream& out, const Point& p);
 
@@ -30,9 +31,12 @@ public:
 	double DotProduct(const Point& p);
 	static double DotProduct(const Point& first, const Point& second);
 
+	Point FindVec(const Point& p);
+	static Point FindVec(const Point& first, const Point& second);
+
 	static Point GetRandomPointInBox(const Point& Min, const Point& Max);
 	static Point GetMiddlePoint(const Point& Min, const Point& Max);
-	static Point GetProjectionPoint(const class Plain& plain, const Point& point);
+	static Point GetProjectionPoint(const class Plane& plain, const Point& point);
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Point& p)

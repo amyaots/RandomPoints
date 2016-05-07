@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include "Plain.h"
+#include "Plane.h"
 #include "Point.h"
 
 
@@ -20,33 +20,26 @@ Point Point::operator+(const Point& p)
 	return Point(X + p.X, Y + p.Y, Z + p.Z);
 }
 
+bool Point::operator!=(const Point & p) const
+{
+	if (*this < p || p < *this)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool AreDoubleSame(double dFirstVal, double dSecondVal)
+{
+	return std::fabs(dFirstVal - dSecondVal) < std::numeric_limits<double>::epsilon();
+}
+
 bool Point::operator<(const Point & p) const
 {
-	if (X < p.X && Y < p.Y && Z < p.Z)
-	{
-		return true;
-	}
-	else if (X < p.X && Y < p.Y && Z == p.Z)
-	{
-		return true;
-	}
-	else if (X == p.X && Y < p.Y && Z == p.Z)
-	{
-		return true;
-	}
-	else if (X < p.X && Y == p.Y && Z == p.Z)
-	{
-		return true;
-	}
-	else if (X == p.X && Y == p.Y && Z < p.Z)
-	{
-		return true;
-	}
-	else if (X == p.X && Y < p.Y && Z < p.Z)
-	{
-		return true;
-	}
-	else if (X < p.X && Y == p.Y && Z < p.Z)
+	if (this->GetLength()<p.GetLength())
 	{
 		return true;
 	}
@@ -85,6 +78,16 @@ double Point::DotProduct(const Point & first, const Point & second)
 	}
 }
 
+Point Point::FindVec(const Point & p)
+{
+	return Point(p.X-X, p.Y-Y,p.Z-Z);
+}
+
+Point Point::FindVec(const Point & first, const Point & second)
+{
+	return Point(second.X-first.X, second.Y - first.Y, second.Z - first.Z);
+}
+
 Point Point::GetRandomPointInBox(const Point& Min, const Point& Max)
 {
 	return Point( Rand(Min.X, Max.X)
@@ -99,7 +102,7 @@ Point Point::GetMiddlePoint(const Point & Min, const Point & Max)
 				, (Min.Z + Max.Z) / 2.0);
 }
 
-Point Point::GetProjectionPoint(const Plain & plain, const Point & point)
+Point Point::GetProjectionPoint(const Plane & plain, const Point & point)
 {
 	double down = plain.X  * plain.X + plain.Y * plain.Y + plain.Z * plain.Z + plain.W;
 	double up = point.X  * plain.X + point.Y * plain.Y + point.Z * plain.Z + plain.W;

@@ -1,11 +1,11 @@
 #pragma once
 
-class Plain
+class Plane
 {
 public:
-	Plain();
-	Plain(double x, double y, double z, double w);
-	Plain(const class Point& point, const class Point& normal);
+	Plane();
+	Plane(double x, double y, double z, double w);
+	Plane(const class Point& point, const class Point& normal);
 
 	void SetPlain(const class Point& point, const class Point& normal);
 	double GetDistance(const class Point& point) const;
