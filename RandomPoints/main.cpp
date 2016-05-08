@@ -11,7 +11,6 @@
 
 void FindMin(std::vector<Point>& vec, const Point& Middle)
 {
-	std::cout << "Search min point..." << std::endl;
 	double MaxDistance{ 0 };
 	std::vector<Point>::iterator Min;
 	if (vec.size() > 0)
@@ -114,10 +113,8 @@ int main()
 	std::cin >> Max.Z;
 	std::cout << "Max point :\t" << Max << std::endl;
 
-	Point RandomPoint = Point::GetRandomPointInBox(Min, Max);
-	std::cout << "Random point :\t" << RandomPoint << std::endl;
 	std::vector<Point> RandomPoints;
-	for (size_t iP = 0; iP < 100000; iP++)
+	for (size_t iP = 0; iP < 1000000; iP++)
 	{
 		RandomPoints.push_back(Point::GetRandomPointInBox(Min, Max));
 	}
@@ -128,7 +125,6 @@ int main()
 	std::cin >> Normal.Y;
 	std::cin >> Normal.Z;
 	std::cout << "Normal :\t" << Normal << std::endl;
-	std::cout << "Middle :\t" << Point::GetMiddlePoint(Min, Max) << std::endl;
 
 	Plane CutPlain(Point::GetMiddlePoint(Min, Max), Normal);
 
