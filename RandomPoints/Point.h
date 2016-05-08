@@ -21,8 +21,7 @@ public:
 	Point operator-(const Point& p);
 	Point operator+(const Point& p);
 	friend Point operator*(const double& la, const Point& rp);
-	bool operator<(const Point& p) const;
-	bool operator!=(const Point& p) const;
+	bool operator==(const Point& p) const;
 
 	friend std::ostream& operator<<(std::ostream& out, const Point& p);
 
@@ -30,6 +29,9 @@ public:
 	
 	double DotProduct(const Point& p);
 	static double DotProduct(const Point& first, const Point& second);
+
+	Point CrossProduct(const Point&p) const;
+	static Point CrossProduct(const Point& first, const Point& second);
 
 	Point FindVec(const Point& p);
 	static Point FindVec(const Point& first, const Point& second);
@@ -41,7 +43,7 @@ public:
 
 inline std::ostream& operator<<(std::ostream& out, const Point& p)
 {
-	return out << "X: " << p.X << "\t"
-		<< "Y: " << p.Y << "\t"
-		<< "Z: " << p.Z << "\n";
+	return out  << p.X << "\t"
+		        << p.Y << "\t"
+		        << p.Z << "\n";
 }

@@ -4,44 +4,33 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <string>
 
 #include "Point.h"
 #include "Plane.h"
 
-Point FindMin(const std::vector<Point>& vec)
+void FindMin(std::vector<Point>& vec, const Point& Middle)
 {
 	std::cout << "Search min point..." << std::endl;
+	double MaxDistance{ 0 };
+	std::vector<Point>::iterator Min;
 	if (vec.size() > 0)
 	{
-		Point Min = *std::min_element(vec.begin(), vec.end());
-
-		return Min;
-	}
-	else
-	{
-		return Point();
-	}
-}
-
-Point FindAxis(const Point& normal)
-{
-	std::vector<Point> Axes;
-	Axes.push_back(Point(1.0, 0.0, 0.0));
-	Axes.push_back(Point(0.0, 1.0, 0.0));
-	Axes.push_back(Point(0.0, 0.0, 1.0));
-
-	Point Axis;
-	double max{ 0 };
-
-	for (const Point& axis : Axes)
-	{
-		if (max < abs(Point::DotProduct(normal, axis)))
+		for (auto it = vec.begin(); it!=vec.end(); ++it)
 		{
-			Axis = axis;
+			double CurrDistance = Point::FindVec(Middle, *it).GetLength();
+			if (MaxDistance < CurrDistance)
+			{
+				MaxDistance = CurrDistance;
+				Min = it;
+			}
 		}
-	}
 
-	return Axis;
+		Point Insert = *Min;
+		vec.erase(Min);
+		vec.insert(vec.begin(), Insert);
+	}
+	return;
 }
 
 void FilterPoints(std::vector<Point>& vec, const Plane& plain, const double D)
@@ -60,47 +49,53 @@ void FilterPoints(std::vector<Point>& vec, const Plane& plain, const double D)
 	}
 }
 
-Point Search(std::vector<Point>& data, const Point& Vector, const Point& Current, const Point& Prev = Point(0,0,0))
-{
-	Point Next;
-	double MinCos{ 2 };
-	
-	for (auto it = data.begin(); it!=data.end();)
+
+std::vector<Point> ConvexHull(std::vector<Point>& vec, const Point& normal, const Point& middle)
+{	
+	FindMin(vec, middle);
+
+	Point Cross = Point::CrossProduct(Point::FindVec(vec.front(), middle), normal);
+	std::sort(vec.begin() + 1, vec.end(), [&](const Point& f, const Point& s) 
+											{
+												return Point::DotProduct(Cross, Point::FindVec(vec.front(), f))
+													 > Point::DotProduct(Cross, Point::FindVec(vec.front(), s));
+											});
+
+	vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+
+	std::vector<Point> Result;
+	Result.push_back(*vec.begin());
+	Result.push_back(*(vec.begin()+1));
+	Result.push_back(*(vec.begin()+2));
+
+	Point nextPoint;
+	Point prevPoint;
+	Point currentPoint;
+	std::vector<Point>::iterator jt;
+
+	for (auto it = vec.begin() + 3; it != vec.end(); it++)
 	{
-		Point Vec = Point::FindVec(Current, *it);
-		if (Vec.GetLength()>0)
+		currentPoint = *it;
+		Result.push_back(currentPoint);
+
+		nextPoint = currentPoint;
+		for (jt = Result.begin() + Result.size() - 2; jt-1 != Result.begin(); jt--)
 		{
-			double currCos = Point::DotProduct(Vector, Vec);
-			if (MinCos > currCos && *it != Prev)
+			currentPoint = *jt;
+			prevPoint = *(jt - 1);
+
+			if (Point::DotProduct(Point::CrossProduct(Point::FindVec(currentPoint,nextPoint), Point::FindVec(currentPoint, prevPoint)), normal) > 0)
 			{
-				MinCos = currCos;
-				Next = *it;
+				Result.pop_back();
+			}
+			else
+			{
+				break;
 			}
 		}
-
-		++it;
 	}
-	return Next;
-}
-
-std::vector<Point> ConvexHullJarvis(std::vector<Point>& vec, const Point& axis)
-{
-	std::vector<Point> Result;
-
-	Result.push_back(FindMin(vec));
-	Result.push_back(Search(vec, axis, Result.front()));
-	size_t index{ 1 };
-	do
-	{
-		Point Current = Result.at(index);
-		Point Vector = Point::FindVec(Result.at(index - 1), Current);
-		Result.push_back(Search(vec, Vector, Current, Result.at(index - 1)));
-		++index;
-	} while (Result.front() != Result.back());
-	Result.pop_back();
 	return std::move(Result);
 }
-
 
 int main()
 {
@@ -122,9 +117,6 @@ int main()
 	Point RandomPoint = Point::GetRandomPointInBox(Min, Max);
 	std::cout << "Random point :\t" << RandomPoint << std::endl;
 	std::vector<Point> RandomPoints;
-	
-	std::ofstream out("points.txt");
-
 	for (size_t iP = 0; iP < 100000; iP++)
 	{
 		RandomPoints.push_back(Point::GetRandomPointInBox(Min, Max));
@@ -146,12 +138,21 @@ int main()
 
 	FilterPoints(RandomPoints, CutPlain, D);
 	std::cout << "Finish filtering." << std::endl;
+
 	std::cout << "Start find convex hull..." << std::endl;
-	std::vector<Point> ResultPoints = ConvexHullJarvis(RandomPoints, FindAxis(Normal));
+	std::vector<Point> ResultPoints = ConvexHull(RandomPoints, Normal, Point::GetMiddlePoint(Min, Max));
+
+	std::string Path;
+	std::cout << "Enter path for text document (results):" << std::endl;
+	std::cin >> Path;
+	Path += "Result.txt";
+	std::ofstream out(Path.c_str());
 
 	for (const Point& P: ResultPoints)
 	{
-		std::cout << P << std::endl;
+		out.setf(std::ios_base::fixed, std::ios_base::floatfield);
+		out.precision(5);
+		out << P << std::endl;
 	}
 
 	out.close();

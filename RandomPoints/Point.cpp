@@ -20,34 +20,18 @@ Point Point::operator+(const Point& p)
 	return Point(X + p.X, Y + p.Y, Z + p.Z);
 }
 
-bool Point::operator!=(const Point & p) const
-{
-	if (*this < p || p < *this)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
 
 bool AreDoubleSame(double dFirstVal, double dSecondVal)
 {
 	return std::fabs(dFirstVal - dSecondVal) < std::numeric_limits<double>::epsilon();
 }
 
-bool Point::operator<(const Point & p) const
+
+bool Point::operator==(const Point & p) const
 {
-	if (this->GetLength()<p.GetLength())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (AreDoubleSame(X, p.X) && AreDoubleSame(Y, p.Y) && AreDoubleSame(Z, p.Z));
 }
+
 
 double Point::GetLength() const
 {
@@ -76,6 +60,16 @@ double Point::DotProduct(const Point & first, const Point & second)
 	{
 		return 0.0;
 	}
+}
+
+Point Point::CrossProduct(const Point & p) const
+{
+	return Point(Y*p.Z - Z*p.Y, Z*p.X - X*p.Z, X*p.Y - Y*p.X);
+}
+
+Point Point::CrossProduct(const Point & first, const Point & second)
+{
+	return Point(first.Y*second.Z - first.Z*second.Y, first.Z*second.X - first.X*second.Z, first.X*second.Y - first.Y*second.X);
 }
 
 Point Point::FindVec(const Point & p)
